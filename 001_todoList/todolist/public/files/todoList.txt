@@ -1,1 +1,1 @@
-{"todo":[{"id":1,"title":"가나다ㅏ","content":"ㅇㅁㅇㅁㄴㄴㅁㅇ","status":"todo","dueDate":"2024-10-01T14:36:51.907Z"}],"inProgress":[{"id":2,"title":"ㅇㄴㅁㅇ","content":"ㄴㅁㅇㄴㅁ","status":"inProgress","dueDate":"2023-07-01T00:00:00.000Z"},{"id":3,"title":"ㅇㅁㅇㅁㅇ","content":"ㅁㅇㅁㄴㅇㅁㄴ","status":"inProgress","dueDate":"2024-10-01T15:24:05.395Z"},{"id":4,"title":"ㅇㅁㄴㅇㅁ","content":"ㄴㅇㅁㅇㅁㄴ","status":"inProgress","dueDate":"2023-11-17T00:00:00.000Z"}],"done":[]}
+{"todo":[],"inProgress":[],"done":[]}

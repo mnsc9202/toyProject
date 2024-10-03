@@ -4,6 +4,7 @@ import TodoList from "@/app/components/todoList";
 import { STYLE } from "@/public/styles/theme/theme";
 import { Box } from "@chakra-ui/react";
 
+/******************** style ********************/
 const style: STYLE = {
   rootContainer: {
     backgroundColor: "done.secondary",

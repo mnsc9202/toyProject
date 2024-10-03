@@ -22,8 +22,7 @@ export const theme = extendTheme({
       secondary: "#FFB0B0",
     },
     todoItem: {
-      bg: "#fff",
-      hoverBg: "#B7B7B7",
+      bg: { primary: "#fff", secondary: "#45474B" },
     },
   },
 });

@@ -19,6 +19,7 @@ import TodoItem from "./todoItem";
 import TodoModal from "./todoModal";
 import { STYLE } from "@/public/styles/theme/theme";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+
 /******************** style ********************/
 const style: STYLE = {
   header: {
@@ -36,6 +37,17 @@ const style: STYLE = {
     padding: 3,
     height: "95%",
     overflowY: "auto",
+  },
+  itemCnt: {
+    minWidth: 6,
+    textAlign: "center",
+    position: "absolute",
+    left: 3,
+    fontSize: 11,
+    padding: 1,
+    backgroundColor: "todoItem.bg.secondary",
+    color: "white",
+    borderRadius: "50%",
   },
   menuBtn: {
     backgroundColor: "todo.secondary",
@@ -61,11 +73,14 @@ type TodoListProps = {
 };
 export default function TodoList({ status }: TodoListProps) {
   /******************** info ********************/
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure(); // modal
   const [sortType, setSortType] = useState<string>("regDate"); // 정렬방식
 
   /******************** store ********************/
   const todoListContext = useContext<TODOLIST_CONTEXT>(TodoListContext);
+
+  /******************** info ********************/
+  // todoList 재구성 (정렬방식 적용)
   const arrangeTodoList = useMemo<TODOITEM[]>(() => {
     switch (sortType) {
       case "regDate": {
@@ -97,9 +112,11 @@ export default function TodoList({ status }: TodoListProps) {
   const onTodoItemClick = useCallback(
     (el: TODOITEM) => (_event: React.MouseEvent<HTMLDivElement>) => {
       if (!todoListContext.dispatch) return;
+
+      // 아이템 선택
       todoListContext.dispatch({ type: "selectItem", data: el });
-      // modal open
-      onOpen();
+
+      onOpen(); // modal
     },
     [onOpen, todoListContext]
   );
@@ -107,18 +124,40 @@ export default function TodoList({ status }: TodoListProps) {
   // 메뉴 아이템 클릭시
   const onMenuItemClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
+      // 선택한 정렬 방식
       const selectSortType: string = event.currentTarget.value;
+
+      // 정렬방식 설정
       setSortType(selectSortType);
     },
     []
+  );
+
+  // todo 아이템 삭제버튼 클릭시
+  const onDeleteTodoListBtnClick = useCallback(
+    (todoItem: TODOITEM) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation(); // 부모 이벤트 실행 방지
+
+      if (!todoListContext.dispatch) return;
+
+      // todoList 설정
+      todoListContext.dispatch({ type: "deleteTodoList", data: todoItem });
+    },
+    [todoListContext]
   );
 
   return (
     <>
       {/* 상단 */}
       <Box sx={{ ...style.header, backgroundColor: `${status}.primary` }}>
+        {arrangeTodoList.length > 0 && (
+          <Box sx={style.itemCnt}>
+            {arrangeTodoList.length > 99 ? "99+" : arrangeTodoList.length}
+          </Box>
+        )}
+
         {/* 타이틀 */}
-        {status.toUpperCase()}
+        <Box sx={{ position: "relative" }}>{status.toUpperCase()}</Box>
 
         {/* 메뉴 */}
         <Menu placement="bottom-end">
@@ -163,9 +202,10 @@ export default function TodoList({ status }: TodoListProps) {
         {arrangeTodoList.map((el: TODOITEM, index: number) => {
           return (
             <TodoItem
-              key={`${el.status}_${index}`}
+              key={`${el.status}_${el.id}_${index}`}
               todoItem={el}
-              onClick={onTodoItemClick}
+              onItemClick={onTodoItemClick}
+              onItemDeleteBtnClick={onDeleteTodoListBtnClick}
             />
           );
         })}

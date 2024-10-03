@@ -13,7 +13,7 @@ import {
   Button,
   Input,
 } from "@chakra-ui/react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   initTodoListState,
   TODOITEM,
@@ -47,9 +47,10 @@ export default function TodoModal({
 }: TodoModalProps) {
   /******************** info ********************/
   const todoListContext = useContext<TODOLIST_CONTEXT>(TodoListContext);
+  // todoItem 정보
   const [todoItem, setTodoItem] = useState<TODOITEM>(
     defaultTodoItem ?? initTodoListState.selectTodoItem
-  ); // todoItem 정보
+  );
 
   /******************** func ********************/
   // 입력값 변경시
@@ -62,6 +63,7 @@ export default function TodoModal({
       const key: string = event.target.name;
       const value: string = event.target.value;
 
+      // todoItem 정보 변경
       setTodoItem((prev: TODOITEM) => ({
         ...prev,
         [key]: key === "dueDate" ? new Date(value) : value,
@@ -73,12 +75,14 @@ export default function TodoModal({
   // 저장 버튼 클릭시
   const onSaveBtnClick = useCallback(() => {
     if (todoListContext.dispatch == null) return;
+
+    // 저장
     todoListContext.dispatch({
       type: defaultTodoItem ? "updateTodoList" : "saveTodoList",
       data: todoItem,
     });
 
-    onClose();
+    onClose(); // modal
   }, [defaultTodoItem, onClose, todoItem, todoListContext]);
 
   /******************** render ********************/
@@ -86,6 +90,7 @@ export default function TodoModal({
   useEffect(() => {
     return () => {
       if (todoListContext.dispatch == null) return;
+
       todoListContext.dispatch({
         type: "initSelectItem",
         data: initTodoListState.selectTodoItem,
@@ -137,9 +142,13 @@ export default function TodoModal({
               onChange={onChangeValue}
               value={todoItem.status}
             >
-              <option value={"todo"}>TODO</option>
-              <option value={"inProgress"}>IN PROGRESS</option>
-              <option value={"done"}>DONE</option>
+              {["todo", "inProgress", "done"].map(
+                (value: string, index: number) => (
+                  <option value={value} key={`${value}_${index}`}>
+                    {value.toUpperCase()}
+                  </option>
+                )
+              )}
             </Select>
           </FormControl>
 

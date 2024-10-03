@@ -1,10 +1,21 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { TODOLIST } from "@/app/_store/todoListStore";
 
-const todoListPath: string = process.env.NEXT_PUBLIC_USER_HOST ?? "";
+/******************** type ********************/
+/** todo api response */
+export type TODO_RESPONSE = {
+  type: string;
+  message: string;
+  data?: TODOLIST;
+};
+
+/******************** const ********************/
+/** 현재 작업 경로 */
 const currentWorkingDirectory: string = process.cwd();
+
+/** todoList 파일명 */
 const todoListFileName: string = "todoList.txt";
 
 export async function GET(request: Request) {
@@ -16,9 +27,24 @@ export async function GET(request: Request) {
     todoListFileName
   );
 
-  // 파일의 내용 읽기
-  const fileData: string = await fs.promises.readFile(filePath, "utf-8");
-  return NextResponse.json({ data: fileData }, { status: 200 });
+  try {
+    // 파일의 내용 읽기
+    const fileData: string = await fs.promises.readFile(filePath, "utf-8");
+
+    // 변환
+    const data: TODOLIST = JSON.parse(fileData);
+
+    // response
+    return NextResponse.json(
+      { type: "success", message: "파일 조회 성공!", data: data },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { type: "error", message: "파일 조회 오류!" },
+      { status: 200 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
@@ -32,17 +58,39 @@ export async function POST(request: Request) {
     todoListFileName
   );
 
-  // 디렉토리 생성 (존재하지 않을 경우)
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  try {
+    // 디렉토리 생성 (존재하지 않을 경우)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
-  // 파일에 내용 쓰기
-  fs.writeFile(filePath, JSON.stringify(reqBody), (err) => {
-    if (err) {
+    // 파일에 내용 쓰기
+    const result = await new Promise((resolve, reject) => {
+      fs.writeFile(
+        filePath,
+        JSON.stringify(reqBody),
+        (err: NodeJS.ErrnoException | null) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(err);
+          }
+        }
+      );
+    });
+    if (result === null) {
       return NextResponse.json(
-        { message: `파일 저장 오류! / ${err}` },
-        { status: 500 }
+        { type: "success", message: "파일 저장 성공!" },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json(
+        { type: "error", message: "파일 저장 오류!" },
+        { status: 200 }
       );
     }
-  });
-  return NextResponse.json({ message: "파일 저장 성공!" }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { type: "error", message: "파일 저장 오류!" },
+      { status: 200 }
+    );
+  }
 }

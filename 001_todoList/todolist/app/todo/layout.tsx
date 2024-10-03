@@ -12,6 +12,7 @@ const style: STYLE = {
     "& > div": {
       flexGrow: 1,
       width: "30%",
+      minWidth: 300,
     },
   },
 };
